@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>3D Sierpinski Gasket</title>
+		
+		<script id="vertex-shader" type="x-shader/x-vertex">
+			attribute vec3 vPosition;
+			attribute vec3 vColor;
+			varying vec4 color;
+			
+			uniform vec3 theta;
+			uniform vec3 scale;
+			
+			void main(){
+			
+			    vec3 angles = radians(theta);
+				vec3 c = cos(angles);
+				vec3 s = sin(angles);
+				vec3 scale = scale; 
+
+				mat4 rx = mat4(1.0,  0.0,  0.0, 0.0,
+						0.0,  c.x,  s.x, 0.0,
+						0.0, -s.x,  c.x, 0.0,
+						0.0,  0.0,  0.0, 1.0);
+
+				mat4 ry = mat4(c.y, 0.0, -s.y, 0.0,
+						0.0, 1.0,  0.0, 0.0,
+						s.y, 0.0,  c.y, 0.0,
+						0.0, 0.0,  0.0, 1.0);
+
+
+				mat4 rz = mat4(c.z, s.z, 0.0, 0.0,
+						-s.z,  c.z, 0.0, 0.0,
+						0.0,  0.0, 1.0, 0.0,
+						0.0,  0.0, 0.0, 1.0);
+						
+				mat4 sc = mat4(
+						scale.x,   0.0,  0.0,  0.0,
+						0.0,  scale.y,   0.0,  0.0,
+						0.0,  0.0,  scale.z,   0.0,
+						0.0,  0.0,  0.0,  1.0  
+						);
+							
+				gl_Position = rz * ry * rx * sc * vec4(vPosition, 1.0);
+				color = vec4(vColor, 1.0);
+			}
+		</script>
+		
+		<script id="fragment-shader" type="x-shader/x-fragment">
+			precision mediump float;
+			
+			varying vec4 color;
+			
+			void main(){
+				gl_FragColor = color;
+			}
+		</script>
+		
+		<script type="text/javascript" src="Common/webgl-utils.js"></script>
+		<script type="text/javascript" src="Common/initShaders.js"></script>
+		<script type="text/javascript" src="Common/MV.js"></script>
+		<script type="text/javascript" src="CMT324_assn1.js"></script>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css"/>
+		<link rel="stylesheet" type="text/css" href="style.css">
+	
+	</head>
+	
+	<body>
+		<div id="main">
+		<h1>3D SIERPINSKI GASKET</h1>
+		
+		<div class="bar">
+			<button class="tab" id="animate-tab" onclick="chgtab(event, 'console-animation')">Animation Setting</button>
+			<button class="tab" id="transform-tab" onclick="chgtab(event, 'console-transformation')">Transformation</button>
+		</div>
+		
+			<div class="console" id="console-animation">
+			<div class="item" id="speed">
+				<h3>Speed</h3>
+				<p class = "sub-item">
+					<input id = "speed-range" type = "range" min = "0.5" max = "2.5" step = "0.25" value = "1">
+					<input id = "speed-number" type = "number" min="0.5" max="2.5" step="0.25" value="1">
+				</p>
+			</div>
+			
+			<div class="item" id="subdivision">
+				<h3>Number of Subdivision</h3>
+				<p class = "sub-item">
+					<input id = "subdivision-range" type = "range" min = "1" max = "10" step = "1" value = "3">
+					<input id = "subdivision-number" type = "number" min="1" max="10" step="1" value="3">
+				</p>
+			</div>
+			
+			<div class="item" id="color-picker">
+				<h3>Color</h3>
+				<div class="color-sub-item"><h5>Background</h5>
+					<div class="face" id="background" ></div>
+				</div>	
+				
+				<div class="color-sub-item"><h5>Surface 1</h5>
+					<div class="face" id="one"></div>
+				</div>
+				
+				<div class="color-sub-item"><h5>Surface 2</h5>
+					<div class="face" id="two"></div>
+				</div>
+				
+				<div class="color-sub-item"><h5>Surface 3</h5>
+					<div class="face" id="three"></div>
+				</div>
+				
+				<div class="color-sub-item"><h5>Surface 4</h5>
+					<div class="face" id="four" ></div>
+				</div>
+				
+				<button class="btn" id="change" type="button">Change Color</button>
+				
+			</div></br>
+			
+			<div class="item btn-container" id="button">
+				<button class="btn" id="start" type="button">Start</button>
+				<button class="btn" id="reset" type="button">Reset</button>
+				<button class="btn" id="stop" type="button" disabled>Stop</button>
+			</div>
+		</div>
+		
+		<div class="console" id = "console-transformation">
+			<div class="item" id="rotation">
+				<h3>Rotation</h3>
+				<p class = "sub-item"><h5>X-axis</h5>
+					<input id = "rotate-x-range" type = "range" min = "0" max = "360" step = "1" value = "0"/>
+					<input id = "rotate-x-number" type = "number" min="0" max="360" step="1" value="0">
+				</p>
+				
+				<p class = "sub-item"><h5>Y-axis</h5>
+					<input id = "rotate-y-range" type = "range" min = "0" max = "360" step = "1" value = "0"/>
+					<input id = "rotate-y-number" type = "number" min="0" max="360" step="1" value="0">
+				</p>
+				
+				<p class = "sub-item"><h5>Z-axis</h5>
+					<input id = "rotate-z-range" type = "range" min = "0" max = "360" step = "1" value = "0"/>
+					<input id = "rotate-z-number" type = "number" min="0" max="360" step="1" value="0">
+				</p>
+			</div>
+						
+			<div class="item" id="scaling">
+				<h3>Scaling</h3>
+				<p class = "sub-item"><h5>X-axis</h5>
+					<input id = "scaling-x-range" type = "range" min = "1" max = "2" step = "0.1" value = "1"/>
+					<input id = "scaling-x-number" type = "number" min="1" max="2" step="0.1" value="1">
+				</p>
+				
+				<p class = "sub-item"><h5>Y-axis</h5>
+					<input id = "scaling-y-range" type = "range" min = "1" max = "2" step = "0.1" value = "1"/>
+					<input id = "scaling-y-number" type = "number" min="1" max="2" step="0.1" value="1">
+				</p>
+				
+				<p class = "sub-item"><h5>Z-axis</h5>
+					<input id = "scaling-z-range" type = "range" min = "1" max = "2" step = "0.1" value = "1"/>
+					<input id = "scaling-z-number" type = "number" min="1" max="2" step="0.1" value="1">
+				</p>
+			</div>
+			
+			<div class="item btn-container" id="button">
+				<button class="btn" id="reset-transform" type="button">Reset</button>
+			</div>
+			
+			</div>
+		
+		<div id="canvas-container">
+			
+			<div id="tooltip-container">
+				<button class="btn" id="tooltip" type="button">Hint</button>
+				<span id="tooltiptext">You can click anywhere inside the canvas to start and stop the animation.</span>
+			</div>
+		
+			<canvas id="gl-canvas" width="620" height="620">
+				Opps ... your browser doesn't support the HTML5 canvas element
+			</canvas>
+		</div>
+		</div>
+		
+		<script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+		<script type="text/javascript" src="pickr.js"></script>
+	</body>
+
+</html>
